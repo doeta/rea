@@ -110,13 +110,16 @@ it("keeps main pushes proposal-only and gates merged-release automation", async 
     step.uses?.startsWith("googleapis/release-please-action@"),
   );
   expect(action?.with).toMatchObject({
-    token: "${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}",
+    token: "${{ secrets.RELEASE_PLEASE_TOKEN }}",
     "target-branch": "main",
     "skip-github-release": true,
   });
   expect(action?.with?.["skip-github-pull-request"]).not.toBe(true);
   expect(action?.if).toBe("steps.editorial.outputs.frozen != 'true'");
   expect(proposal.steps[0]?.run).toContain("rea:release-notes-finalized");
+  expect(proposal.steps[0]?.run).toContain(
+    "RELEASE_PLEASE_TOKEN is not configured; skipping automatic release proposal updates on main.",
+  );
   expect(proposal.steps[0]?.run).toContain("--paginate");
   const merged = workflow.jobs["merged-release"];
   expect(merged.if).toContain("github.event.pull_request.merged == true");
